@@ -9,7 +9,9 @@ const inter = Inter({ subsets: ['latin'] })
 export default function Home() {
   const [lang, setLang] = useState([]);
   const [selectedLang, setSelectedLang] = useState();
-
+  const [text, setText] = useState("");
+  const [audio, setAudio] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const config = {
     headers: {
@@ -35,6 +37,27 @@ export default function Home() {
       })
   }, [])
 
+  const handleSubmit = () => {
+    setLoading(true);
+    if (text.length !== 0) {
+      fetch(`https://text-to-speech27.p.rapidapi.com/speech?text=${text}&lang=${selectedLang ? selectedLang : "en-us"}`, {
+        method: 'GET',
+        headers: {
+          'X-RapidAPI-Key': process.env.NEXT_PUBLIC_X_REPIDAPI_KEY,
+          'X-RapidAPI-Host': process.env.NEXT_PUBLIC_X_REPIDAPI_HOST,
+        },
+      })
+        .then(res => res.blob())
+        .then(blob => {
+          const audioUrl = URL.createObjectURL(blob);
+          setAudio(audioUrl);
+          setLoading(false);
+        })
+    } else {
+      console.log("none");
+    }
+  }
+
   return (
     <>
       <Head>
@@ -44,21 +67,23 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <form>
+        <div>
           <h1 className={styles.title}>Text-to-speech</h1>
           <div className={styles.inputCont}>
             <label htmlFor="text">Input text: </label> <br />
-            <textarea className={styles.inputField} name="text" id="" cols="90" rows="7"></textarea> <br />
+            <textarea className={styles.inputField} value={text} onChange={(e) => setText(e.target.value)} name="text" id="" cols="90" rows="7"></textarea> <br />
             <label htmlFor="text">Language: </label> <br />
-            <select className={styles.language} value={selectedLang} name="cars" id="cars">
-              <option>Select Language</option>
+            <select className={styles.language} value={selectedLang} onChange={(e) => setSelectedLang(e.target.value)} name="cars" id="cars">
+              <option value="">Select Language</option>
               {
-                lang.map(l => <option key={l.langKey} onClick={() => setSelectedLang(l.langKey)} value={l.langKey}>{l.langKey}: {l.langName}</option>)
+                lang.map(l => <option key={l.langKey} value={l.langKey}>{l.langKey}: {l.langName}</option>)
               }
             </select>
-            <button className={styles.button}>Submit</button>
+            <button className={styles.button} onClick={() => handleSubmit()}>Submit</button>
+            {loading ? <div className={styles.lds_ring}><div></div><div></div><div></div><div></div></div> : ""}
           </div>
-        </form>
+          <audio className={styles.audio} src={audio} controls></audio>
+        </div>
       </main>
     </>
   )
