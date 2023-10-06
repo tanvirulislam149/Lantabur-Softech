@@ -1,5 +1,4 @@
 import Head from 'next/head'
-import Image from 'next/image'
 import { Inter } from 'next/font/google'
 import styles from '@/styles/Home.module.css'
 import axios from 'axios'
@@ -14,8 +13,8 @@ export default function Home() {
 
   const config = {
     headers: {
-      'X-RapidAPI-Key': '9b72d5335dmsh775fee76efa7afcp11edb8jsn8bbc3f37884a',
-      'X-RapidAPI-Host': 'text-to-speech27.p.rapidapi.com'
+      'X-RapidAPI-Key': process.env.NEXT_PUBLIC_X_REPIDAPI_KEY,
+      'X-RapidAPI-Host': process.env.NEXT_PUBLIC_X_REPIDAPI_HOST
     }
   };
 
@@ -52,6 +51,7 @@ export default function Home() {
             <textarea className={styles.inputField} name="text" id="" cols="90" rows="7"></textarea> <br />
             <label htmlFor="text">Language: </label> <br />
             <select className={styles.language} value={selectedLang} name="cars" id="cars">
+              <option>Select Language</option>
               {
                 lang.map(l => <option key={l.langKey} onClick={() => setSelectedLang(l.langKey)} value={l.langKey}>{l.langKey}: {l.langName}</option>)
               }
